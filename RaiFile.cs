@@ -636,7 +636,14 @@ namespace OperatingSystemCore
             ext = string.Empty;
             if (!string.IsNullOrEmpty(filename))
             {
-                filename = filename.Replace("~", Os.HomeDir);
+                #region some unix conventions for convenience
+                if (filename.StartsWith("~/"))
+                    filename = $"{Os.HomeDir}{filename.Substring(1)}";
+                else if (filename.StartsWith("./"))
+                    filename = $"{Directory.GetCurrentDirectory()}{filename.Substring(1)}";
+                else if (filename.StartsWith("../"))
+                    filename = $"{new RaiFile(Directory.GetCurrentDirectory()).Path}{filename.Substring(3)}";
+                #endregion
                 filename = Os.NormSeperator(filename);
                 var k = filename.LastIndexOf(Os.DIRSEPERATOR);
                 if (k >= 0)
@@ -660,6 +667,11 @@ namespace OperatingSystemCore
             }
             set { lines = value; }
         }
+        /// <summary>
+        /// List automatically extends according to https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.addrange?view=netcore-2.2
+        /// if tests fail, AddRange could be employed
+        /// </summary>
+        /// <value></value>
         public string this[int i]
         {
             get
@@ -668,6 +680,8 @@ namespace OperatingSystemCore
             }
             set
             {
+                if (Lines.Capacity < i + 1)
+                    Lines.AddRange(Enumerable.Range(Lines.Count, i - Lines.Count + 1).Select(x => ""));
                 Lines[i] = value;
             }
         }
