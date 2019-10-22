@@ -447,17 +447,28 @@ namespace OperatingSystemCore
             return -count;
         }
         /// <summary>
-        /// does nothing if dir is not empty
+        /// does nothing if dir is not empty unless depth is set to > 0; assumes this RaiFile is a directory
         /// </summary>
-        public void rmdir()
+        /// <param name="depth">deletes up to depth levels of subdirectories</param>
+        public void rmdir(int depth = 0)
         {
             if (dirEmpty)
-                rmdir(Path);
+                rmdir(FullName);
+            else if (depth > 0)
+            {
+                foreach (var subdir in Directory.EnumerateDirectories(FullName))
+                {
+                    foreach (var file in Directory.EnumerateFiles(subdir))
+                        new RaiFile(file).rm();
+                    new RaiFile(subdir).rmdir(depth - 1);   // recursion
+                }
+                rmdir(FullName);
+            }
         }
         /// <summary>
         /// throws exception if dir is not empty
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">must point to a directory</param>
         private static void rmdir(string path)
         {
             path = Os.winInternal(path);
@@ -469,11 +480,15 @@ namespace OperatingSystemCore
                     awaitDirVanishing(path);
             }
         }
+        /// <summary>
+        /// assumes that FullName points to a directory; check if it contains files
+        /// </summary>
+        /// <value>true if no files in this directory</value>
         public bool dirEmpty
         {
             get
             {
-                return !Directory.EnumerateFileSystemEntries(Path).Any();
+                return !Directory.EnumerateFileSystemEntries(FullName).Any();
             }
         }
         public DirectoryInfo mkdir()
@@ -642,7 +657,15 @@ namespace OperatingSystemCore
                 else if (filename.StartsWith("./"))
                     filename = $"{Directory.GetCurrentDirectory()}{filename.Substring(1)}";
                 else if (filename.StartsWith("../"))
-                    filename = $"{new RaiFile(Directory.GetCurrentDirectory()).Path}{filename.Substring(3)}";
+                {
+                    var dir = Directory.GetCurrentDirectory();
+                    while (filename.StartsWith("../"))
+                    {
+                        dir = new RaiFile(dir.TrimEnd('/')).Path;   // one up
+                        filename = filename.Substring(3);           // remove first ../
+                    }
+                    filename = $"{dir}{filename}";
+                }
                 #endregion
                 filename = Os.NormSeperator(filename);
                 var k = filename.LastIndexOf(Os.DIRSEPERATOR);
