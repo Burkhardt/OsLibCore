@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Title>RAI.OsLibCore</Title>
-    <PackageId>RAI.OsLibCore</PackageId>
+    <Title>OsLibCore</Title>
+    <PackageId>OsLibCore</PackageId>
     <Version>2.1.0</Version>
     <Authors>Rainer Burkhardt</Authors>
     <Description>Handling of files and system calls</Description>
@@ -12,10 +12,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>os, oslib, system call, file handling, core</PackageTags>
     <IsPackable>true</IsPackable>
-    <ProjectURL>https://github.com/Burkhardt/RAI.OsLib</ProjectURL>
+    <ProjectURL>https://github.com/Burkhardt/OsLibCore</ProjectURL>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Copyright>© Rainer Burkhardt. All rights reserved.</Copyright>
-    <RepositoryUrl>https://github.com/Burkhardt/RAI.OsLib</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Burkhardt/OsLibCore</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
     <PackageReleaseNotes>Version for netstandard2.1</PackageReleaseNotes>
     <!--<PackageIcon></PackageIcon>-->
