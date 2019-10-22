@@ -534,58 +534,64 @@ namespace OperatingSystemCore
             }
             return file;
         }
+        /*
         /// <summary>
         /// usees 7zip
         /// </summary>
         /// <returns>zipArchive as RsbFile or null</returns>
-        // public RaiFile Zip7()
-        // {
-        //     var zip7 = new RaiFile(FullName + ".7z");
-        //     zip7.rm();  // remove it if an old version exists
-        //                 //var oldCurrentDir = Directory.GetCurrentDirectory();
-        //                 //Directory.SetCurrentDirectory("c:\\Program Files\\7-Zip\\");
-        //     var call = new RaiSystem("7z", "a -mmt " + Os.escapeParam(zip7.FullName) + " " + Os.escapeParam(FullName));
-        //     call.Exec();
-        //     //Directory.SetCurrentDirectory(oldCurrentDir);
-        //     if (call.ExitCode == 0 && zip7.Exists())
-        //     {
-        //         rm();
-        //         return zip7;
-        //     }
-        //     return null;
-        // }
+        public RaiFile Zip7()
+        {
+            var zip7 = new RaiFile(FullName + ".7z");
+            zip7.rm();  // remove it if an old version exists
+                        //var oldCurrentDir = Directory.GetCurrentDirectory();
+                        //Directory.SetCurrentDirectory("c:\\Program Files\\7-Zip\\");
+            var call = new RaiSystem("7z", "a -mmt " + Os.escapeParam(zip7.FullName) + " " + Os.escapeParam(FullName));
+            call.Exec();
+            //Directory.SetCurrentDirectory(oldCurrentDir);
+            if (call.ExitCode == 0 && zip7.Exists())
+            {
+                rm();
+                return zip7;
+            }
+            return null;
+        }
+        */
+        /*
         /// <summary>
         /// usees 7zip with options -t7z -m0=lzma2 -mx=9 -aoa
         /// </summary>
         /// <returns>zipArchive as RsbFile or null</returns>
-        // public RaiFile ZipUltra()
-        // {
-        //     var zip7 = new RaiFile(FullName + ".7z");
-        //     zip7.rm();  // remove it if an old version exists
-        //                 //var oldCurrentDir = Directory.GetCurrentDirectory();
-        //                 //Directory.SetCurrentDirectory("c:\\Program Files\\7-Zip\\");
-        //     var call = new RaiSystem("7z", "a -t7z -m0=lzma2 -mx=9 -aoa " + Os.escapeParam(zip7.FullName) + " " + Os.escapeParam(FullName));
-        //     call.Exec();
-        //     //Directory.SetCurrentDirectory(oldCurrentDir);
-        //     if (call.ExitCode == 0 && zip7.Exists())
-        //     {
-        //         rm();
-        //         return zip7;
-        //     }
-        //     return null;
-        // }
+        public RaiFile ZipUltra()
+        {
+            var zip7 = new RaiFile(FullName + ".7z");
+            zip7.rm();  // remove it if an old version exists
+                        //var oldCurrentDir = Directory.GetCurrentDirectory();
+                        //Directory.SetCurrentDirectory("c:\\Program Files\\7-Zip\\");
+            var call = new RaiSystem("7z", "a -t7z -m0=lzma2 -mx=9 -aoa " + Os.escapeParam(zip7.FullName) + " " + Os.escapeParam(FullName));
+            call.Exec();
+            //Directory.SetCurrentDirectory(oldCurrentDir);
+            if (call.ExitCode == 0 && zip7.Exists())
+            {
+                rm();
+                return zip7;
+            }
+            return null;
+        }
+        */
+        /* 
         /// <summary>
         /// unzip an 7z archive using 7z commandline
         /// </summary>
         /// <returns>and RsbFile - use the Path to identify where the taget file(s) are located</returns>
-        // public RaiFile UnZip7()
-        // {
-        //     var unzipped = new RaiFile(FullName.Substring(0, FullName.IndexOf(".7z")));
-        //     var call = new RaiSystem("7z", "e " + Os.escapeParam(FullName) + " -o" + unzipped.Path);
-        //     call.Exec();
-        //     // do not remove 7z file
-        //     return unzipped;
-        // }
+        public RaiFile UnZip7()
+        {
+            var unzipped = new RaiFile(FullName.Substring(0, FullName.IndexOf(".7z")));
+            var call = new RaiSystem("7z", "e " + Os.escapeParam(FullName) + " -o" + unzipped.Path);
+            call.Exec();
+            // do not remove 7z file
+            return unzipped;
+        }
+        */
         /// <summary>
         /// copies the file on disk identified by the current RsbFile object to multiple destinations
         /// </summary>
