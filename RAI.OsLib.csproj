@@ -11,7 +11,7 @@
     <PackageTags>os, oslib, system call, file handling, core</PackageTags>
     <IsPackable>true</IsPackable>
     <ProjectUrl>https://github.com/Burkhardt/RAI.OsLib</ProjectUrl>
-    <License>https://github.com/Burkhardt/RAI.OsLib/blob/master/LICENSE</License>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
