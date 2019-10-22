@@ -12,6 +12,7 @@
     <IsPackable>true</IsPackable>
     <ProjectUrl>https://github.com/Burkhardt/RAI.OsLib</ProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <!--<PackageIcon></PackageIcon>-->
   </PropertyGroup>
 
   <ItemGroup>
