@@ -8,7 +8,7 @@ using RunProcessAsTask; // https://github.com/jamesmanning/RunProcessAsTask
 *	based on RsbSystem (C++ version from 1991, C# version 2005, dotnet core 2019)
 */
 
-namespace OperatingSystemCore
+namespace OsLibCore
 {
 	public class RaiSystem
 	{
