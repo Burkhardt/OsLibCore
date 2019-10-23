@@ -10,7 +10,7 @@ OsLibCore
 
 - RaiSystem
 - RaiNetDrive
-- EscapeCode
+- EscapeMode
 - OsType
 - Os
 - RaiFile
