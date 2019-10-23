@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using RunProcessAsTask; // https://github.com/jamesmanning/RunProcessAsTask
@@ -10,7 +9,7 @@ using RunProcessAsTask; // https://github.com/jamesmanning/RunProcessAsTask
 
 namespace OsLibCore
 {
-	public class RaiSystem
+    public class RaiSystem
 	{
 		string command = null;
 		string param = null;

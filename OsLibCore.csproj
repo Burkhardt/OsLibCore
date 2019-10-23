@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Title>OsLibCore</Title>
     <PackageId>OsLibCore</PackageId>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <Authors>Rainer Burkhardt</Authors>
     <Description>Handling of files and system calls</Description>
     <!--<PackageDescription>Handling of files and system calls</PackageDescription>-->
