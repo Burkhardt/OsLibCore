@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Title>OsLibCore</Title>
-    <PackageId>OsLibCore</PackageId>
+    <Title>OsLib</Title>
+    <PackageId>OsLib</PackageId>
     <Version>2.1.3</Version>
     <Authors>Rainer Burkhardt</Authors>
     <Description>Handling of files and system calls</Description>
@@ -12,10 +12,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>RaiSystem, RaiNetDrive, EscapeMode, OsType, Os, RaiFile, TextFile, CsvFile, TmpFile</PackageTags>
     <IsPackable>true</IsPackable>
-    <ProjectURL>https://github.com/Burkhardt/OsLibCore</ProjectURL>
+    <ProjectURL>https://github.com/Burkhardt/OsLib</ProjectURL>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Copyright>© Rainer Burkhardt. All rights reserved.</Copyright>
-    <RepositoryUrl>https://github.com/Burkhardt/OsLibCore</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Burkhardt/OsLib</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
     <PackageReleaseNotes>Version for netstandard2.1</PackageReleaseNotes>
     <PackageIcon>hardcastle.png</PackageIcon>
