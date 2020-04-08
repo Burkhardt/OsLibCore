@@ -33,7 +33,7 @@ using Newtonsoft.Json;
  *	based on RsbFile (C++ version from 1991, C# version 2005)
  */
 
-namespace OsLibCore
+namespace OsLib
 {
     public enum EscapeMode { noEsc, blankEsc, paramEsc, backslashed };
     public enum OsType { UNIX, Windows };

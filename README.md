@@ -1,10 +1,10 @@
-# OsLibCore
+# OsLib
 
     Handling of files and system calls.
 
 ## namespace 
 
-OsLibCore
+OsLib
 
 ## classes
 
