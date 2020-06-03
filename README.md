@@ -1,6 +1,8 @@
 # OsLib
 
-    Handling of files and system calls.
+	Handling of files and system calls.
+
+_formerly_ __OsLibCore__
 
 ## namespace 
 

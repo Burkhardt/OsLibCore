@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<Title>OsLib</Title>
-		<PackageId>OsLib</PackageId>
+		<PackageId>OsLibCore</PackageId>
 		<Version>2.1.4</Version>
 		<Authors>Rainer Burkhardt</Authors>
 		<Description>Handling of files and system calls</Description>
