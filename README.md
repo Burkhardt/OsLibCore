@@ -17,3 +17,7 @@ OsLib
 - TextFile
 - CsvFile
 - TmpFile
+
+## nuget
+
+https://www.nuget.org/packages/OsLibCore/
