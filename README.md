@@ -16,9 +16,11 @@ OsLib
 - OsType
 - Os
 - RaiFile
+- RaiFileExtensions
 - TextFile
 - CsvFile
 - TmpFile
+- ShellHelper
 
 ## nuget
 
