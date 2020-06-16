@@ -9,6 +9,29 @@ using RunProcessAsTask; // https://github.com/jamesmanning/RunProcessAsTask
 
 namespace OsLib		// aka OsLibCore
 {
+	public static class ShellHelper
+	{
+		public static string Bash(this string cmd)
+		{
+			var escapedArgs = cmd.Replace("\"", "\\\"");
+
+			var process = new Process()
+			{
+				StartInfo = new ProcessStartInfo
+				{
+					FileName = "/bin/bash",
+					Arguments = $"-c \"{escapedArgs}\"",
+					RedirectStandardOutput = true,
+					UseShellExecute = false,
+					CreateNoWindow = true,
+				}
+			};
+			process.Start();
+			string result = process.StandardOutput.ReadToEnd();
+			process.WaitForExit();
+			return result;
+		}
+	}
     public class RaiSystem
 	{
 		string command = null;
@@ -16,6 +39,13 @@ namespace OsLib		// aka OsLibCore
 		string commandLine = null;
 		public static string IndirectShellExecFile = new RaiFile("~/bin/start").FullName;
 		public int ExitCode = 0;
+		public string this[string environmentVariable]
+		{
+			get {
+				var p = new Process();
+				return p.StartInfo.EnvironmentVariables[environmentVariable];
+			}
+		}
 		/// <summary>Exec for apps that don't want console output
 		/// </summary>
 		/// <param name="msg">returns output of called program</param>
@@ -40,6 +70,7 @@ namespace OsLib		// aka OsLibCore
 			p.WaitForExit(120000);  // this needs to come after readToEnd() RSB: https://msdn.microsoft.com/en-us/library/system.diagnostics.processstartinfo.redirectstandardoutput(v=vs.110).aspx
 			ExitCode = p.ExitCode;
 			p.Dispose();
+			msg.TrimEnd();
 			return ExitCode;
 		}
 		/// <summary>Exec for console apps</summary>
