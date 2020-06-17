@@ -89,6 +89,65 @@ namespace OsLib
 				return envDict;
 			}
 		}
+		public string Path
+		{
+			get
+			{
+				return EnvironmentVariables["PATH"];
+			}
+			set
+			{
+				var list = new List<string>(EnvironmentVariables["PATH"].Split(new char[] { ':' }));
+				if (!list.Contains(value))
+				{
+					#region try to make changes to PATH permanent => find the source
+					var zshrc = new TextFile("~/.zshrc");
+					#region add to .zshrc if this file exists
+					if (zshrc.Exists())
+					{
+						int pathInserted = -1, exportExists = -1, mlwAliasExists = -1, lastAlias = -1;
+						for (int i = 0; i < zshrc.Lines.Count; i++)
+						{
+							if (zshrc.Lines[i].Contains("path+="))
+							{
+								zshrc.Lines[i] = $"path+=~/.mlw:{zshrc.Lines[i].Substring(6)}";
+								pathInserted = i;
+							}
+							if (zshrc.Lines[i].Contains("export PATH"))
+								exportExists = i;
+							if (zshrc.Lines[i].StartsWith("alias mlw='~/.mlw/mlw'"))
+								mlwAliasExists = i;
+							if (zshrc.Lines[i].StartsWith("alias"))
+								lastAlias = i;
+						}
+						if (pathInserted < 0)
+						{
+							if (exportExists >= 0) 
+							{
+								zshrc.Lines.Insert(exportExists, "path+=~/.mlw");
+							}
+							else
+							{
+								zshrc.Lines.Add("path+=~/.mlw");
+								zshrc.Lines.Add("export PATH");
+							}
+						}
+						else
+						{
+							if (exportExists < pathInserted) 
+							{
+								zshrc.Lines.Add("export PATH");
+							}
+						}
+						if (mlwAliasExists < 0 || lastAlias == zshrc.Lines.Count - 1) 
+							zshrc.Lines.Add("alias mlw='~/.mlw/mlw'");
+						else zshrc.Lines.Insert(lastAlias, "alias mlw='~/.mlw/mlw'");
+					}
+					#endregion
+					zshrc.Save();
+				}
+			}
+		}
 		public string Which
 		{
 			get
