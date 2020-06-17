@@ -225,7 +225,7 @@ namespace OsLib     // aka OsLibCore
 				multi = line.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 				foreach (var one in multi)
 				{
-					if (tabbed) 
+					if (tabbed)
 						buffer.Add(one.Replace("    ", "\t").Replace("  ", "\t").Singularize(' ').Singularize('\t').Replace("\t ", "\t"));
 					else buffer.Add(one.Singularize(' '));
 				}
@@ -258,7 +258,7 @@ namespace OsLib     // aka OsLibCore
 			var tab = (new List<string> { lines }).MakePolicyCompliant(tabbed: true);
 			var keys = tab[0].Split(new char[] { '\t' });
 			var list = new List<Dictionary<string, string>>();
-			for (int i = 1;  tab.Count > i; i++)
+			for (int i = 1; tab.Count > i; i++)
 			{
 				var v = tab[i].Split(new char[] { '\t' });
 				var dict = new Dictionary<string, string>();
@@ -759,6 +759,10 @@ namespace OsLib     // aka OsLibCore
 	}
 	public class TextFile : RaiFile
 	{
+		/// <summary>
+		/// holds info if anything has changed in memory since last read
+		/// </summary>
+		public bool Changed { get; set; }
 		private List<string> lines;
 		public List<string> Lines
 		{
@@ -784,6 +788,7 @@ namespace OsLib     // aka OsLibCore
 				if (Lines.Capacity < i + 1)
 					Lines.AddRange(Enumerable.Range(Lines.Count, i - Lines.Count + 1).Select(x => ""));
 				Lines[i] = value;
+				Changed = true; // even if Lines[i] had the same value before already
 			}
 		}
 		public void Append(string line)
@@ -793,19 +798,23 @@ namespace OsLib     // aka OsLibCore
 			if (lines.Count == 1 && lines[0].Length == 0)   // make sure that we don't start in line two with an empty file
 				lines[0] = line;
 			else lines.Add(line);
+			Changed = true;
 		}
 		public void Insert(int beforeLine, string line)
 		{
 			Lines.Insert(beforeLine, line);
+			Changed = true;
 		}
 		public void Delete(int line)
 		{
 			Lines.RemoveAt(line);
+			Changed = true;
 		}
 		public void DeleteAll()
 		{
 			lines = new List<string>();
 			Append("");
+			Changed = true;
 		}
 		public void Sort(bool reverse = false)
 		{
@@ -814,10 +823,12 @@ namespace OsLib     // aka OsLibCore
 			if (reverse)
 				Array.Reverse(lineArray);
 			this.lines = new List<string>(lineArray);
+			Changed = true;
 		}
 		public List<string> Read()
 		{
 			lines = File.Exists(FullName) ? new List<string>(File.ReadAllLines(FullName)) : new List<string>();
+			Changed = false;
 			return Lines;
 		}
 		/// <summary>
@@ -826,12 +837,15 @@ namespace OsLib     // aka OsLibCore
 		/// <param name="backup">with backup == false the wait for materializing is not going to work; only use outside dropbox and alike</param>
 		public void Save(bool backup = false)
 		{
-			new RaiFile(FullName).mkdir();
-			if (backup)
-				this.backup(); // calls AwaitVanishing()
-			else this.rm();   // calls AwaitVanishing()
-			File.WriteAllLines(FullName, (lines == null ? new List<string>() : lines), Encoding.UTF8);
-			AwaitMaterializing();
+			if (Changed)
+			{
+				new RaiFile(FullName).mkdir();
+				if (backup)
+					this.backup(); // calls AwaitVanishing()
+				else this.rm();   // calls AwaitVanishing()
+				File.WriteAllLines(FullName, (lines == null ? new List<string>() : lines), Encoding.UTF8);
+				AwaitMaterializing();
+			}
 		}
 		public TextFile(string name)
 			: base(name)
@@ -911,6 +925,7 @@ namespace OsLib     // aka OsLibCore
 			}
 			set
 			{
+				Changed = true;
 				throw new NotImplementedException();
 			}
 		}
@@ -1002,7 +1017,7 @@ namespace OsLib     // aka OsLibCore
 		public void create()
 		{
 			var text = new TextFile(FullName);
-			text.Lines.Add("");
+			text.Append("");
 			text.Save();
 		}
 		/// <summary>
