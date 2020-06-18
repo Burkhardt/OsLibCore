@@ -311,7 +311,7 @@ namespace OsLib     // aka OsLibCore
 		/// </summary>				
 		public virtual string NameWithExtension
 		{
-			get { return string.IsNullOrEmpty(name) ? string.Empty : Name + (string.IsNullOrEmpty(ext) ? string.Empty : "." + Ext); }
+			get { return string.IsNullOrEmpty(name) && string.IsNullOrEmpty(Ext) ? string.Empty : Name + (string.IsNullOrEmpty(ext) ? string.Empty : "." + Ext); }
 		}
 		private string ext;
 		/// <summary>
@@ -350,7 +350,7 @@ namespace OsLib     // aka OsLibCore
 		{
 			return File.Exists(Os.winInternal(FullName));
 		}
-		public int rm()                     // removes file from the file system 
+		public int rm()	// removes file from the file system 
 		{
 			var name = Os.winInternal(FullName);
 			if (File.Exists(name))
