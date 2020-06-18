@@ -435,9 +435,9 @@ namespace OsLib     // aka OsLibCore
 		{
 			return awaitFileVanishing(FullName);
 		}
-		public int AwaitMaterializing()
+		public int AwaitMaterializing(bool newFileOldName = false)
 		{
-			return awaitFileMaterializing(FullName);
+			return awaitFileMaterializing(FullName, newFileOldName);
 		}
 		private static int awaitDirMaterializing(string dirName)
 		{
@@ -479,18 +479,24 @@ namespace OsLib     // aka OsLibCore
 				throw new DirectoryNotFoundException("ensure failed - timeout in awaitDirVanishing of dir " + path + ".");
 			return -count;
 		}
-		private static int awaitFileMaterializing(string fileName)
+		private static int awaitFileMaterializing(string fileName, bool newFileOldName = false)
 		{
 			var count = 0;
-			var exists = false;
+			var done = false;
+			var dt = new TimeSpan(0);
 			while (count < maxWaitCount)
 			{
 				try
 				{
-					exists = File.Exists(fileName);
+					if (newFileOldName) {
+						var info = new FileInfo(fileName);
+						dt = DateTime.Now.Subtract(info.LastWriteTimeUtc);
+						done = dt.TotalMilliseconds < 100;	// way too long - time the OS/FileSystem needs to update the FileInfo for a just rewritten file
+					}
+					else done = File.Exists(fileName);
 				}
 				catch (Exception) { }   // device not ready exception if Win 2003
-				if (exists)
+				if (done)
 					break;
 				Thread.Sleep(5);
 				count++;
@@ -844,7 +850,8 @@ namespace OsLib     // aka OsLibCore
 					this.backup(); // calls AwaitVanishing()
 				else this.rm();   // calls AwaitVanishing()
 				File.WriteAllLines(FullName, (lines == null ? new List<string>() : lines), Encoding.UTF8);
-				AwaitMaterializing();
+				AwaitMaterializing(true);
+				Changed = false;
 			}
 		}
 		public TextFile(string name)
