@@ -278,6 +278,7 @@ namespace OsLib     // aka OsLibCore
 		}
 	}
 	/// <summary>
+	/// RaiPath – uses operator/ to add a subdirectory to a path
 	/// just the path, no filename, no extension
 	/// </summary>
 	public class RaiPath
