@@ -73,7 +73,11 @@ namespace OsLib     // aka OsLibCore
 		private static string dropboxRootDir = null;
 		private static string localDropboxFile = @"c:\bin\localDropbox.txt";
 		private static string localDropboxFileUnix = "~/.dropbox/info.json";
-		private static string linkedDroboxDir = "~/DropboxZMOD";
+		/// <summary>
+		/// On a macOS, make sure this is linked to avoid problems with white spaces in the path, like "ZMOD dropbox"
+		/// example: ln -s /Users/Shared/DropboxZMOD /Users/Shared/ZMOD\ Dropbox
+		/// </summary>
+		private static string linkedDroboxDir = "/Users/Shared/DropboxZMOD";
 		//private static string linkedDroboxDir = null;
 		/// <summary>
 		/// Get the current server's Dropbox root or use SyncRootDir if not possible
@@ -272,6 +276,45 @@ namespace OsLib     // aka OsLibCore
 			}
 			return list;
 		}
+	}
+	/// <summary>
+	/// just the path, no filename, no extension
+	/// </summary>
+	public class RaiPath
+	{
+		public string Path {
+			get
+			{
+				return path.Path;
+			}
+			set
+			{
+				path = new RaiFile(value);
+				path.Name = string.Empty;
+				path.Ext = string.Empty;
+			}
+		}
+		private RaiFile path;
+		/// <summary>
+		/// Using the / operator to add a subdirectory to a path
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="subDir">string</param>
+		/// <returns>RaiPath object for daisy chaining reasons</returns>
+		public static RaiPath operator /(RaiPath self, string subDir)
+		{
+			return new RaiPath(self.path.Path + subDir + Os.DIRSEPERATOR);
+		}
+		public RaiPath(string s)
+		{
+			Path = s;
+		}
+		public RaiPath(RaiFile f)
+		{
+			path = f;
+			path.Name = string.Empty;
+		}
+		public override string ToString() => Path;
 	}
 	public class RaiFile
 	{

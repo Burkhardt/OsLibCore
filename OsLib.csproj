@@ -3,10 +3,10 @@
 	<PropertyGroup>
 		<Title>OsLib</Title>
 		<PackageId>OsLibCore</PackageId>
-		<Version>2.1.4</Version>
+		<Version>2.2</Version>
 		<Authors>Rainer Burkhardt</Authors>
 		<Description>Handling of files and system calls</Description>
-		<TargetFramework>netstandard2.1</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 		<NoWarn>$(NoWarn);CS1591</NoWarn>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PackageTags>RaiSystem, RaiNetDrive, EscapeMode, OsType, Os, RaiFile, TextFile, CsvFile, TmpFile</PackageTags>
@@ -16,7 +16,7 @@
 		<Copyright>© Rainer Burkhardt</Copyright>
 		<RepositoryUrl>https://github.com/Burkhardt/OsLib</RepositoryUrl>
 		<RepositoryType>github</RepositoryType>
-		<PackageReleaseNotes>Version for netstandard2.1</PackageReleaseNotes>
+		<PackageReleaseNotes>Version for net6.0, also adds class Path /w operator/</PackageReleaseNotes>
 		<PackageIcon>hardcastle.png</PackageIcon>
 	</PropertyGroup>
 
