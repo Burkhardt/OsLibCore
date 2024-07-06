@@ -8,6 +8,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 //using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 // FileInfo FileVol = new FileInfo(DownloadPath);
 // int SizeinKB = (int)(FileVol).Length / 1024 ;
@@ -30,11 +31,18 @@ using Newtonsoft.Json;
 /*
  *	based on RsbFile (C++ version from 1991, C# version 2005)
  */
-
 namespace OsLib     // aka OsLibCore
 {
 	public enum EscapeMode { noEsc, blankEsc, paramEsc, backslashed };
 	public enum OsType { UNIX, Windows };
+	/// <remarks> 
+	/// 2021-07-05: OsLib now works with different CloudStorage providers, not only Dropbox
+	/// Dropbox still works (personal and business accounts)
+	/// OneDrive is also supported now
+	/// look for the following variables to set your prefenrences
+	/// - dropboxType
+	/// - cloudStorageType
+	/// </remarks>
 	public class Os
 	{
 		public static string HomeDir
@@ -70,32 +78,34 @@ namespace OsLib     // aka OsLibCore
 		public static string LocalBackupDir = "~/Backup/";   // needs to be a directory that is not on any kind of remote or synchronized dir
 		public static string FindDropboxCommand = @"c:\bin\FindDropbox.exe";
 		public static string NewSubscriberCommand = @"c:\bin\newsub.exe";
-		private static string dropboxRootDir = null;
+		private static string cloudStorageRootDir = null;
 		private static string localDropboxFile = @"c:\bin\localDropbox.txt";
-		private static string localDropboxFileUnix = "~/.dropbox/info.json";
+		private static string localDropboxFileUnix = "~/.dropbox/info.json";	// 2024-07-05: still ok for Dropbox v202.4.5551 which is beta for macOS Sonoma 14.5
+		enum CloudStorageType { dropbox, onedrive };
+		enum DropboxType { personal, business };
+		private static DropboxType dropboxType = DropboxType.personal;
+		private static CloudStorageType cloudStorageType = CloudStorageType.dropbox;
 		/// <summary>
-		/// On a macOS, make sure this is linked to avoid problems with white spaces in the path, like "ZMOD dropbox"
-		/// example: ln -s /Users/Shared/DropboxZMOD /Users/Shared/ZMOD\ Dropbox
+		/// On a macOS, the dropboxPath is read from ~/.dropbox/info.json, which contains root_path for business subscriptions and path for personal subscriptions
+		/// set dropboxType to personal or business to set the subscription you want to use for CloudStorage 
 		/// </summary>
-		private static string linkedDroboxDir = "/Users/Shared/DropboxZMOD";
+		private static string linkedCloudStorageDir = "/Users/Shared/Dropbox";
 		//private static string linkedDroboxDir = null;
 		/// <summary>
 		/// Get the current server's Dropbox root or use SyncRootDir if not possible
 		/// </summary>
 		/// <value>returns "" or the path with Os.DIRSEPERATOR at the end</value>
-		public static string DropboxRoot
+		public static string CloudStorageRoot
 		{
 			get
 			{
-				if (dropboxRootDir == null)
+				if (cloudStorageRootDir == null)
 				{
 					#region MacOs
 					if (Os.Type == OsType.UNIX)
 					{
-						if (!string.IsNullOrEmpty(linkedDroboxDir))
-						{
-							dropboxRootDir = linkedDroboxDir;
-						}
+						if (cloudStorageType == CloudStorageType.onedrive)
+							return new RaiFile("~/Library/CloudStorage/OneDrive/").Path;	// TODO: check if this is correct for various macOS systems/machines
 						else
 						{
 							var tf = new TextFile(localDropboxFileUnix);
@@ -103,8 +113,9 @@ namespace OsLib     // aka OsLibCore
 							{
 								var jo = JObject.Parse(string.Join(" ", tf.Lines));
 								var business = (JObject)jo["business"];
-								dropboxRootDir = (string)business["path"];
-								return dropboxRootDir;
+								var personal = (JObject)jo["personal"];
+								cloudStorageRootDir =  (dropboxType == DropboxType.business ? (string)business["root_path"] : (string)personal["path"]) + Os.DIRSEPERATOR;
+								return cloudStorageRootDir;
 							}
 						}
 					}
@@ -129,22 +140,22 @@ namespace OsLib     // aka OsLibCore
 									if (!string.IsNullOrEmpty(dropboxLocationFile[0]) && dropboxLocationFile[0].Contains("ropbox"))
 										result = dropboxLocationFile[0];
 								}
-								dropboxRootDir = result.Trim() + DIRSEPERATOR;  // removes \n\r
+								cloudStorageRootDir = result.Trim() + DIRSEPERATOR;  // removes \n\r
 							}
 						}
 						catch (Exception)
 						{
 							if (File.Exists(localDropboxFile))
 							{
-								dropboxRootDir = new TextFile(localDropboxFile)[0];
-								if (!dropboxRootDir.EndsWith(Os.DIRSEPERATOR))
-									dropboxRootDir = Os.NormSeperator(dropboxRootDir + Os.DIRSEPERATOR);
+								cloudStorageRootDir = new TextFile(localDropboxFile)[0];
+								if (!cloudStorageRootDir.EndsWith(Os.DIRSEPERATOR))
+									cloudStorageRootDir = Os.NormSeperator(cloudStorageRootDir + Os.DIRSEPERATOR);
 							}
 						}
 					}
 					#endregion
 				}
-				return dropboxRootDir;
+				return cloudStorageRootDir;
 			}
 		}
 		public static string DIRSEPERATOR
@@ -323,7 +334,7 @@ namespace OsLib     // aka OsLibCore
 									  // raised from 20 as a result of a failed test case: TestUserRoleSubscriberAccess, Pic8, 2014-03-03, RSB.
 									  // raised from 25 as a result of a failed test runs on Pic8 (which probably has a slow disk compared to other servers), 2014-03-16, RSB.
 		private string name;
-		public bool Ensure;
+		public bool Cloud;
 		/// <summary>
 		/// // without dir structure and without extension
 		/// </summary>				
@@ -367,6 +378,9 @@ namespace OsLib     // aka OsLibCore
 			set { ext = value; }
 		}
 		private string path;                // the source directory of the picture, ends with a dirSeperator
+		/// <summary>
+		/// the source directory of the file, ends with a dirSeperator; Ensure will be set to memorize if the file is in the cloud
+		/// </summary>
 		public virtual string Path
 		{
 			get { return path; }
@@ -379,9 +393,17 @@ namespace OsLib     // aka OsLibCore
 					path = Os.NormSeperator(value);
 					if (path[path.Length - 1] != Os.DIRSEPERATOR[0])
 						path = path + Os.DIRSEPERATOR;
+					UpdateCloudFlag();
 				}
 			}
 		}
+
+		private void UpdateCloudFlag()
+		{
+			var lowercase = path.ToLower();
+			Cloud = lowercase.Contains(".dropbox") ? false : lowercase.Contains("dropbox") || lowercase.Contains("onedrive") || lowercase.Contains("cloudstorage");    // sets Ensure also for files inside local .dropbox folder 
+		}
+
 		public virtual string FullName
 		{
 			get { return Path + NameWithExtension; }
@@ -401,7 +423,7 @@ namespace OsLib     // aka OsLibCore
 			{
 				File.Delete(name);
 				#region double check if file is gone
-				if (Ensure)
+				if (Cloud)
 					return awaitFileVanishing(name);
 				#endregion
 			}
@@ -419,7 +441,7 @@ namespace OsLib     // aka OsLibCore
 			rm(); // make sure it's really gone before we go ahead; applies ensure
 			File.Move(oldname, newname);  // make sure the user that w3wp runs under has write/delete access to oldname, i.e. c:\dropbox\config\3.3.3\Users.xml
 			#region double check if file has moved
-			if (Ensure)
+			if (Cloud)
 				return awaitFileVanishing(oldname) + awaitFileMaterializing(newname);
 			#endregion
 			return 0;
@@ -436,7 +458,7 @@ namespace OsLib     // aka OsLibCore
 			rm(); // make sure it's really gone before we go ahead; applies ensure
 			File.Copy(oldname, newname, true);  // overwrite if exists (which should never happen since we just removed it)
 			#region double check if file has moved
-			if (Ensure)
+			if (Cloud)
 				return awaitFileMaterializing(newname);
 			#endregion
 			return 0;
@@ -452,7 +474,7 @@ namespace OsLib     // aka OsLibCore
 			rm();
 			File.Copy(from, newname, true);
 			#region double check if file has moved
-			if (Ensure)
+			if (Cloud)
 				return awaitFileMaterializing(newname);
 			#endregion
 			return 0;
@@ -774,7 +796,8 @@ namespace OsLib     // aka OsLibCore
 		/// <param name="filename"></param>
 		public RaiFile(string filename)
 		{
-			Ensure = filename.ToLower().Contains("dropbox");
+			// var lowercase = filename.ToLower();
+			// Ensure = lowercase.Contains(".dropbox") ? false : lowercase.Contains("dropbox") || lowercase.Contains("onedrive") || lowercase.Contains("cloudstorage");	// sets Ensure also for files inside local .dropbox folder 
 			path = string.Empty;
 			name = string.Empty;
 			ext = string.Empty;
@@ -805,6 +828,7 @@ namespace OsLib     // aka OsLibCore
 				}
 				else Name = filename;   // also takes care of ext
 			}
+			UpdateCloudFlag();
 		}
 	}
 	public class TextFile : RaiFile
