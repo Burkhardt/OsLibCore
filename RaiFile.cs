@@ -429,12 +429,16 @@ namespace OsLib     // aka OsLibCore
 			}
 			return 0;
 		}
+		/// <summary>
+		/// move file in the file system
+		/// </summary>
+		/// <param name="from"></param>
+		/// <returns></returns>
 		public int mv(RaiFile from)         // relocates file in the file system
 		{
-			//bool destIsDropbox = Name.ToLower().Contains("dropbox");
-			//bool srcIsDropbox = from.Name.ToLower().Contains("dropbox");
-			//#region both files in Dropbox - no acceleration
-			//#endregion
+			// make sure from and this do not point to the same file
+			if (from.FullName == FullName)
+				return 0;
 			mkdir(); // create destdir if necessary; applies ensure
 			var newname = Os.winInternal(FullName);
 			var oldname = Os.winInternal(from.FullName);
@@ -447,12 +451,15 @@ namespace OsLib     // aka OsLibCore
 			return 0;
 		}
 		/// <summary>
-		/// Copy file
+		/// Copy file in the file system
 		/// </summary>
 		/// <param name="from">will be checked; exception will be thrown if file name does not match RsbFile form requirements</param>
 		/// <returns>0 if everything went well</returns>
 		public int cp(RaiFile from)
-		{ // copy file in the file system
+		{
+		  // make sure from and this do not point to the same file
+			if (from.FullName == FullName)
+				return 0;
 			var oldname = Os.winInternal(from.FullName);
 			var newname = Os.winInternal(FullName);
 			rm(); // make sure it's really gone before we go ahead; applies ensure
@@ -470,14 +477,7 @@ namespace OsLib     // aka OsLibCore
 		/// <returns></returns>
 		public int cp(string from)
 		{
-			var newname = Os.winInternal(FullName);
-			rm();
-			File.Copy(from, newname, true);
-			#region double check if file has moved
-			if (Cloud)
-				return awaitFileMaterializing(newname);
-			#endregion
-			return 0;
+			return cp(new RaiFile(from));
 		}
 		public bool IsDirectory() => FullName.EndsWith(Os.DIRSEPERATOR);
 		/// <summary>
@@ -497,14 +497,28 @@ namespace OsLib     // aka OsLibCore
 				return true;
 			return false;
 		}
+		/// <summary>
+		/// Cloud Space files sometimes take their time to vanish
+		/// </summary>
+		/// <returns></returns>
 		public int AwaitVanishing()
 		{
 			return awaitFileVanishing(FullName);
 		}
+		/// <summary>
+		/// Cloud Space files sometimes take their time to materialize
+		/// </summary>
+		/// <param name="newFileOldName"></param>
+		/// <returns></returns>
 		public int AwaitMaterializing(bool newFileOldName = false)
 		{
 			return awaitFileMaterializing(FullName, newFileOldName);
 		}
+		/// <summary>
+		/// Cloud Space directories sometimes take their time to materialize
+		/// </summary>
+		/// <param name="dirName"></param>
+		/// <returns></returns>
 		private static int awaitDirMaterializing(string dirName)
 		{
 			var count = 0;
@@ -525,6 +539,12 @@ namespace OsLib     // aka OsLibCore
 				throw new DirectoryNotFoundException("ensure failed - timeout in awaitDirMaterializing of dir " + dirName + ".");
 			return -count;
 		}
+		/// <summary>
+		/// Cloud Space directories sometimes take their time to vanish
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		/// <exception cref="DirectoryNotFoundException"></exception>
 		private static int awaitDirVanishing(string path)
 		{
 			var count = 0;
@@ -738,7 +758,7 @@ namespace OsLib     // aka OsLibCore
 		}
 		*/
 		/// <summary>
-		/// copies the file on disk identified by the current RsbFile object to multiple destinations
+		/// copies the file on disk identified by the current RaiFile object to multiple destinations
 		/// </summary>
 		/// <param name="destDirs"></param>
 		/// <returns></returns>
