@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -84,12 +84,14 @@ namespace OsLib     // aka OsLibCore
 		enum CloudStorageType { dropbox, onedrive };
 		enum DropboxType { personal, business };
 		private static DropboxType dropboxType = DropboxType.personal;
-		private static CloudStorageType cloudStorageType = CloudStorageType.dropbox;
+		private static CloudStorageType cloudStorageType = CloudStorageType.dropbox; // loudStorageType.onedrive; => not that easy with OneDrive; use Ms Graph API
 		/// <summary>
 		/// On a macOS, the dropboxPath is read from ~/.dropbox/info.json, which contains root_path for business subscriptions and path for personal subscriptions
 		/// set dropboxType to personal or business to set the subscription you want to use for CloudStorage 
 		/// </summary>
+		#pragma warning disable
 		private static string linkedCloudStorageDir = "/Users/Shared/Dropbox";
+		#pragma warning restore
 		//private static string linkedDroboxDir = null;
 		/// <summary>
 		/// Get the current server's Dropbox root or use SyncRootDir if not possible
@@ -109,7 +111,7 @@ namespace OsLib     // aka OsLibCore
 						else
 						{
 							var tf = new TextFile(localDropboxFileUnix);
-							if (tf != null)
+							if (tf != null && tf.Lines.Count > 0)
 							{
 								var jo = JObject.Parse(string.Join(" ", tf.Lines));
 								var business = (JObject)jo["business"];
@@ -807,6 +809,12 @@ namespace OsLib     // aka OsLibCore
 			else backupFile.mv(this);
 			return backupFile.FullName;
 		}
+
+        public string[] DirList
+        {
+            get => Path.Split(Os.DIRSEPERATOR, StringSplitOptions.RemoveEmptyEntries); 
+        }
+
 		/// <summary>
 		/// Constructor: auto-ensure mode for file systems that do not synchronously wait for the end of an IO operation i.e. Dropbox
 		/// </summary>
