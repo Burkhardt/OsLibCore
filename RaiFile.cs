@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -815,14 +815,14 @@ namespace OsLib     // aka OsLibCore
             get => Path.Split(Os.DIRSEPERATOR, StringSplitOptions.RemoveEmptyEntries); 
         }
 
-		/// <summary>
-		/// Constructor: auto-ensure mode for file systems that do not synchronously wait for the end of an IO operation i.e. Dropbox
-		/// </summary>
-		/// <remarks>only use the ensure mode if it has to be guaranteed that the IO operation was completely done
-		/// when the method call returns; necessary e.g. for Dropbox directories since (currently) Dropbox first updates the
-		/// file in the invisible . folder and then asynchronously updates the visible file and all the remote copies of it</remarks>
-		/// <param name="filename"></param>
-		public RaiFile(string filename)
+        /// <summary>
+        /// Constructor: auto-ensure mode for file systems that do not synchronously wait for the end of an IO operation i.e. Dropbox
+        /// </summary>
+        /// <remarks>only use the ensure mode if it has to be guaranteed that the IO operation was completely done
+        /// when the method call returns; necessary e.g. for Dropbox directories since (currently) Dropbox first updates the
+        /// file in the invisible . folder and then asynchronously updates the visible file and all the remote copies of it</remarks>
+        /// <param name="filename"></param>
+        public RaiFile(string filename)
 		{
 			// var lowercase = filename.ToLower();
 			// Ensure = lowercase.Contains(".dropbox") ? false : lowercase.Contains("dropbox") || lowercase.Contains("onedrive") || lowercase.Contains("cloudstorage");	// sets Ensure also for files inside local .dropbox folder 
