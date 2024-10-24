@@ -1136,4 +1136,40 @@ namespace OsLib     // aka OsLibCore
 				this.Ext = ext;
 		}
 	}
-} //namespace 
+	/// <summary>
+	/// Organizes the file into a directory based on its own name.
+	/// For example, a file ./123456.json will be moved to ./123456/123456.json
+	/// only checked in constructor, not in later operations like Path or Name changes
+	/// </summary>
+	public class CanonicalFile : RaiFile
+	{
+		/// <summary>
+		/// A CononicalFile is a file that is inside a directory based on its own name.
+		/// </summary>
+		/// <param name="fullName">i.e. ~/StorageDir/AfricaStage/AfricaStage.pit or ~/StorageDir/AfricaStage.pit or ~/StorageDir/AfricaStage/</param>
+		/// <param name="defaultExt">optional parameter if fullName doesn't come with an extension</param>
+		/// <exception cref="Exception"></exception>
+		public CanonicalFile(string fullName, string defaultExt = "pit") : base(fullName)
+		{
+			// Create a directory based on the file name
+			var from = new RaiFile(fullName);
+			Name = string.IsNullOrEmpty(from.Name) ? from.DirList[^1] : from.Name;
+			Ext = string.IsNullOrEmpty(from.Ext) ? defaultExt : from.Ext;
+			#region access file system and create directory if convention of canonicaFile is not met
+			if (DirList[^1] != Name)
+			{
+				Path = (new RaiPath(Path) / Name).Path;
+				//Path = Path + Name + Os.DIRSEPERATOR;
+				if (!Directory.Exists(Path))
+					Directory.CreateDirectory(Path);
+				if (File.Exists(FullName))
+					throw new Exception($"Tried to move {FullName} to {Path} but destination file already exists");
+				else
+				{
+					File.Move(from.FullName, FullName);
+				}
+			}
+			#endregion
+		}
+	}
+} //namespace OsLib
